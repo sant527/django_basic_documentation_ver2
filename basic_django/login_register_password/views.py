@@ -747,3 +747,48 @@ def logout_view(request):
     system_messages.used = True
     messages.success(request, email + ' has logged out successfully')
     return redirect('articles_namespace:articles')
+
+
+from django.core.serializers.json import DjangoJSONEncoder
+from django.views.decorators.csrf import csrf_exempt
+from django.middleware.csrf import CsrfViewMiddleware
+from django_remote_forms.forms import RemoteForm
+import json
+from .forms import UserLoginViaOtpFormEmail
+from django.http import HttpResponse
+
+
+@csrf_exempt
+def api_user_login_via_otp_form_email_django_forms_example(request):
+    csrf_middleware = CsrfViewMiddleware()
+
+    response_data = {}
+    if request.method == 'GET':
+        # Get form definition
+        form = UserLoginViaOtpFormEmail(initial={'email': settings.TESTING_EMAIL2})
+    elif request.method == 'POST':
+        if request.content_type  != 'application/json':
+            return HttpResponse(json.dumps({"detail": "Unsupported media type \"'%s'\" in request." % request.content_type}), content_type="application/json",status=401);
+        # Process request for CSRF
+        csrf_middleware.process_view(request, None, None, None)
+        form_data = json.loads(request.body)
+        form = UserLoginViaOtpFormEmail(form_data)
+        if form.is_valid():
+            email = form.cleaned_data.get('email')
+            response = HttpResponse(
+                {'email': email},
+                content_type="application/json"
+            )
+
+    remote_form = RemoteForm(form)
+    # Errors in response_data['non_field_errors'] and response_data['errors']
+    response_data.update(remote_form.as_dict())
+
+    response = HttpResponse(
+        json.dumps(response_data, cls=DjangoJSONEncoder),
+        content_type="application/json"
+    )
+
+    # Process response for CSRF
+    csrf_middleware.process_response(request, response)
+    return response
