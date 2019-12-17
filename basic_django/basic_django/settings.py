@@ -202,6 +202,8 @@ EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 # Testing mail to which we will send the emails to
 TESTING_EMAIL=env('TESTING_EMAIL')
 
+# we want to use this mainly to show in github any example
+TESTING_EMAIL2="test@xyz.com"
 
 #By default, Django will only display messages with level greater than 20
 #(INFO). If you want to display DEBUG messages:
