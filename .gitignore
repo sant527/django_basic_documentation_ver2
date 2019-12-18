@@ -258,6 +258,10 @@ fabric.properties
 #   having no cross-platform support, pipenv may install dependencies that don’t work, or not
 #   install all needed dependencies.
 
+# node modules npm init
+node_modules/
+
+
 # celery beat schedule file
 
 # SageMath parsed files
