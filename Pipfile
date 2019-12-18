@@ -19,6 +19,7 @@ django-environ = "*"
 celery = "*"
 redis = "*"
 pyjwt = "*"
+django-webpack-loader = "*"
 
 [requires]
 python_version = "3.7"
