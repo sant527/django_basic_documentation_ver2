@@ -76,7 +76,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'custom_user',
     'login_register_password',
-    'articles'
+    'articles',
+    'webpack_loader',
 ]
 
 if DEBUG: 
@@ -146,6 +147,14 @@ DATABASES = {
     # read os.environ['DATABASE_URL'] and raises ImproperlyConfigured exception if not found
     'default': env.db(),  
     # env.db() is a short form of env.db(‘DATABASE_URL', default='psql:////tmp/my-tmp-sqlite.db')
+}
+
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': '',  #we want to have multiple entry in webpack so we keep this blank.
+        'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
+        #BASE_DIR is your Django project directory. The same directory where manage.py is located.
+    }
 }
 
 
