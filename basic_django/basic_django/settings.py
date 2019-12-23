@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     'login_register_password',
     'articles',
     'webpack_loader',
+    'polls_example_for_webpack_and_reactjs.polls'
 ]
 
 if DEBUG: 
