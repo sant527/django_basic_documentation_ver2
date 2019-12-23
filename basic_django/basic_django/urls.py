@@ -30,4 +30,6 @@ urlpatterns = [
     path('', include('articles.urls',namespace='articles_namespace')),
     # include all the urls from login_register_password
     path('login_register_password/', include('login_register_password.urls',namespace='login_register_password_namespace')),
+    # webpack_and reactjs_example
+    path('polls_webpack_react_example/', include('polls_example_for_webpack_and_reactjs.polls.urls'))
 ]

@@ -80,6 +80,19 @@ entry_output1 = {
 }
 */
 
+entry_output1 = {
+
+  entry: {
+    'polls/js/bundles/index':  path.resolve(__dirname, 'basic_django/polls_example_for_webpack_and_reactjs/polls/static/polls/js/index.js'),
+    'polls/js/bundles/questions':  path.resolve(__dirname, 'basic_django/polls_example_for_webpack_and_reactjs/polls/static/polls/js/questions.js'),
+   },
+
+  output: {
+    path: path.join(__dirname)+"/basic_django/polls_example_for_webpack_and_reactjs/polls/static/", // add / at the end
+    filename: "[name]-[hash].js",
+  }
+}
+
 
 /* MODULE EXPORTS ARRAY NOTE
  Why are we using array. Because we want different output folders which is not possible
@@ -90,9 +103,8 @@ module.exports = [
   {
     name: "somename",
     context: common.context,
-// Here fill the entry_output
-/*    entry: entry_output1.entry,
-    output: entry_output1.output,*/
+    entry: entry_output1.entry,
+    output: entry_output1.output,
     plugins: common.plugins,
     module: common.module,
     resolve: common.resolve,
@@ -106,74 +118,174 @@ module.exports = [
 /* HOW MULTIPLE ENTRY AND OUTPUT WORK NOTE
 How to set multiple file entry and output in project with webpack?
 Webpack: path as the entry name: 
+=======
+common = {
+  context: __dirname,
 
-EG:
-pwd: /home/user/project/
+  plugins: [
+    new BundleTracker({filename: './basic_django/webpack-stats.json'}),
+  ],
+>>>>>>> Stashed changes
 
-Tree -A
-
-apps
-├── dir1
-│   └── js
-│       ├── main.js [entry 1]
-│       └── bundle.js [output 1]
-└── dir2
-    ├── index.js [entry 2]
-    └── foo.js [output 2]
-
- 
-NOTE dont use / in path.resolve i.e apps/dir1/js/main.js is right /apps/dir1/js/main.js is wrong
-ERROR in Entry module not found: Error: Can't resolve '/basic_django/polls_example_for_webpack_and_reactjs/polls/static/polls/js/index.js' in '/home/web_dev/DO_NOT_DELETE_djang_basic_documentation_part2'
-
-{
-  entry: {
-    'dir1/js/bundle': path.resolve(__dirname, 'apps/dir1/js/main.js'),
-    'dir2/foo' : path.resolve(__dirname, 'apps/dir2/index.js')
+  module: {
+    rules: [
+      {
+        test: /.(js|jsx)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader"
+        }
+      }
+    ]
   },
-  output: {
-    path: path.resolve(__dirname, 'apps'),  i.e /home/user/project/apps
-    filename: '[name]-[hash].js'
-  },
-  ...
+
+  resolve: {
+    extensions: ['*', '.js', '.jsx']
+  }
+
 }
 
-Here  'dir1/js/bundle' is [name] of the entry point. 
+entry_output1 = {
 
-Here the important thing is [name] and path  (Use [name] to get the name of the entry point)
+  entry: {
+    'polls/js/bundles/index':  path.resolve(__dirname, 'basic_django/polls_example_for_webpack_and_reactjs/polls/static/polls/js/index.js'),
+    'polls/js/bundles/questions':  path.resolve(__dirname, 'basic_django/polls_example_for_webpack_and_reactjs/polls/static/polls/js/questions.js'),
+   },
 
-Its like 
-[path]+[filename] == [path: path.resolve(__dirname, '/apps')] + [filename: '[name]-[hash].js'
-] == [full path]+[name]-[hash].js  == [/home/user/project/apps/]+[dir1/js/bundle]-[jhajkhkd].js = /home/user/project/apps/dir1/js/bundle-jhajkhkd.js
+  output: {
+    path: path.join(__dirname)+"/basic_django/polls_example_for_webpack_and_reactjs/polls/static/", // add / at the end
+    filename: "[name]-[hash].js",
+  }
+}
 
 
-and then stats file become:
+module.exports =[
+	{
+	  name: "polls",
+	  context: common.context,
+	  entry: entry_output1.entry,
+	  output: entry_output1.output,
+	  plugins: common.plugins,
+	  module: common.module,
+	  resolve: common.resolve,
+	}
 
+]
+
+/*
+Before:
+home
+└── web_dev
+    └── DO_NOT_DELETE_djang_basic_documentation_part2
+        └── basic_django
+            └── polls_example_for_webpack_and_reactjs
+                ├── __init__.py
+                ├── hare.py
+                ├── models.py
+                └── polls
+                    ├── __init__.py
+                    ├── admin.py
+                    ├── apps.py
+                    ├── fixtures
+                    ├── migrations
+                    ├── models.py
+                    ├── static
+                    │   └── polls
+                    │       └── js
+                    │           ├── index.js
+                    │           └── questions.js
+                    ├── templates
+                    ├── tests.py
+                    ├── urls.py
+                    └── views.py
+
+
+AFTER*******************************
+
+ 19:38:00  simha  /home/web_dev/DO_NOT_DELETE_djang_basic_documentation_part2   master ✘ ✹ ✭ 
+$ tree --noreport --fromfile <<EOF                      
+`tree -f -i -n -F --noreport /home/web_dev/DO_NOT_DELETE_djang_basic_documentation_part2/basic_django/polls_example_for_webpack_and_reactjs | grep -E -v 'templates/.+|migrations/.+|fixtures/.+|^\.$'`
+EOF
+.
+└── home
+    └── web_dev
+        └── DO_NOT_DELETE_djang_basic_documentation_part2
+            └── basic_django
+                └── polls_example_for_webpack_and_reactjs
+                    ├── __init__.py
+                    ├── hare.py
+                    ├── models.py
+                    └── polls
+                        ├── __init__.py
+                        ├── admin.py
+                        ├── apps.py
+                        ├── fixtures
+                        ├── migrations
+                        ├── models.py
+                        ├── static
+                        │   └── polls
+                        │       └── js
+                        │           ├── bundles
+                        │           │   ├── index-8ea5b4e40178f2c800ee.js
+                        │           │   └── question-8ea5b4e40178f2c800ee.js
+                        │           ├── index.js
+                        │           └── questions.js
+                        ├── templates
+                        ├── tests.py
+                        ├── urls.py
+                        └── views.py
+
+
+*/
+
+
+// How to run it
+/*
+
+$ ./node_modules/.bin/webpack --config webpack.config.js
+Hash: f321a5521d75ab142c8c
+Version: webpack 4.41.3
+Child polls:
+    Hash: f321a5521d75ab142c8c
+    Time: 1189ms
+    Built at: 12/23/2019 6:28:19 PM
+                                              Asset     Size  Chunks                         Chunk Names
+       /polls/bundles/index-f321a5521d75ab142c8c.js  128 KiB       0  [emitted] [immutable]  /polls/bundles/index
+    /polls/bundles/question-f321a5521d75ab142c8c.js  130 KiB       1  [emitted] [immutable]  /polls/bundles/question
+    Entrypoint /polls/bundles/index = /polls/bundles/index-f321a5521d75ab142c8c.js
+    Entrypoint /polls/bundles/question = /polls/bundles/question-f321a5521d75ab142c8c.js
+    [7] ./basic_django/polls_example_for_webpack_and_reactjs/polls/static/polls/js/index.js 280 bytes {0} [built]
+    [8] ./basic_django/polls_example_for_webpack_and_reactjs/polls/static/polls/js/questions.js 3.32 KiB {1} [built]
+        + 7 hidden modules
+    
+    WARNING in configuration
+    The 'mode' option has not been set, webpack will fallback to 'production' for this value. Set 'mode' option to 'development' or 'production' to enable defaults for each environment.
+    You can also set it to 'none' to disable any default behavior. Learn more: https://webpack.js.org/configuration/mode/
+
+ 18:28:20  simha  /home/web_dev/DO_NOT_DELETE_djang_basic_documentation_part2   master ✘ ✹ ✭ 
+$ 
+
+webpack-stats.json
 {
   "status": "done",
   "chunks": {
-
-    # this is same as the entry name
-    "dir1/js/bundle": [
+    "/polls/bundles/index": [
       {
-
-        # here name is derived from filename: '[name]-[hash].js' ([name] is entry index name)
-        "name": "dir1/js/bundle-jhajkhkd.js",
-
-        # here path is derived from [full path]+[filename] == [path: path.resolve(__dirname, '/apps')] + [filename: '[name].js'] = [path] + [name].js 
-        "path": "/home/user/project/apps/dir1/js/bundle-jhajkhkd.js"
-
+        "name": "/polls/bundles/index-f321a5521d75ab142c8c.js",
+        "path": "/home/web_dev/DO_NOT_DELETE_djang_basic_documentation_part2/basic_django/polls_example_for_webpack_and_reactjs/polls/static/polls/bundles/index-f321a5521d75ab142c8c.js"
       }
     ],
-    "dir2/foo": [
+    "/polls/bundles/question": [
       {
-        "name": "dir2/foo.js",
-        "path": "/home/user/project/apps/dir2/foo-hgjhghjg.js"
+        "name": "/polls/bundles/question-f321a5521d75ab142c8c.js",
+        "path": "/home/web_dev/DO_NOT_DELETE_djang_basic_documentation_part2/basic_django/polls_example_for_webpack_and_reactjs/polls/static/polls/bundles/question-f321a5521d75ab142c8c.js"
       }
     ]
   }
 }
 
 
+<<<<<<< Updated upstream
 ALSO ANOTHER EXAMPLE:
 
 
@@ -287,3 +399,16 @@ common = {
 }
 
 */
+
+
+//How to copy properties from one object to another
+// normal js
+
+// for(var k in firstObject) secondObject[k]=firstObject[k];
+
+// ES6 spread operator
+// //const thirdObject = {
+//    ...firstObject,
+//    ...secondObject   
+// }
+// Works in Chrome, this is ES6, you will need Babel or some ES6 transpiler currently. In the future all browser are expected to support this syntax.
