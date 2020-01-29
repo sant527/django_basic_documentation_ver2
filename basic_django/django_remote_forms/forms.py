@@ -160,5 +160,5 @@ class RemoteForm(object):
         else:
             form_dict['data'] = initial_data
         gaura = resolve_promise(form_dict)
-        print(gaura)
+        #print(gaura)
         return resolve_promise(form_dict)
