@@ -12,6 +12,30 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
+
+# https://docs.djangoproject.com/en/3.0/topics/async/
+# Since Django 3.0 Jupyter throws error os async issue
+# Solution is to edit the file .venv/lib/python3.7/site-packages/django/utils/asyncio.py as per 
+# https://github.com/michalwols/django/blob/b6c2d53a05d0ff720a4bc13cccb2a81571ce6078/django/utils/asyncio.py
+# change function inner to
+
+#        def inner(*args, **kwargs):
+#            if not getattr(settings, 'ALLOW_ASYNC_UNSAFE', False):
+#                # Detect a running event loop in this thread.
+#                try:
+#                    event_loop = asyncio.get_event_loop()
+#                except RuntimeError:
+#                    pass
+#                else:
+#                    if event_loop.is_running():
+#                        raise SynchronousOnlyOperation(message)
+#            # Pass onwards.
+#            return func(*args, **kwargs)
+#        return inner
+
+# And then add ALLOW_ASYNC_UNSAFE in settings.py
+ALLOW_ASYNC_UNSAFE = True
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
