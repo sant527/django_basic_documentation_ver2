@@ -328,6 +328,8 @@ class BaseUser(AbstractUser):
     # Because last_login is set by the signal in login() we dont want it and instead have our own
     last_login2 = models.DateTimeField(blank=True, null=True)
 
+    jwt_secret = models.UUIDField(editable=False)
+
     # A string describing the name of the field on the user model that is 
     # used as the unique identifier. This will usually be a username of 
     # some kind, but it can also be an email address, or any other unique 
@@ -431,6 +433,8 @@ class UserSessionLog(models.Model):
     ip_address = models.GenericIPAddressField()
     created_time = models.DateTimeField(default=timezone.now)
     action_type = models.ForeignKey(ActionTypeForUserSessionLog, on_delete=models.PROTECT)
+
+    jwt_secret = models.UUIDField(editable=False)
 
 
 
