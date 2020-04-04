@@ -1,0 +1,300 @@
+CURL FOR POSTING DATA:
+--location helps to auto redirect
+-- NO need to use --request POST
+-- data-raw will automatically start POST
+
+#####
+POST email with improper json string: FOR json.loads(request.body)- Exception\nExpecting property name enclosed in double quotes: line 2 column 1 (char 2)
+
+curl --verbose --location 'http://127.0.0.1:8000/login_register_password/api/user_login_via_otp_form_email' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+email:"test@test.com"
+}' | tee ~/test.json ~/test.html; firefox ~/test.json ~/test.html
+
+
+OUTPUT:
+
+{
+  "message": "The request body is not valid.",
+  "explanation": "json.loads(request.body): Expecting property name enclosed in double quotes: line 2 column 1 (char 2)"
+}
+
+
+#####
+POST email: with form errors
+
+curl --verbose --location 'http://127.0.0.1:8000/login_register_password/api/user_login_via_otp_form_email' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+"email" :"testtest.com"
+}' | tee ~/test.json ~/test.html; firefox ~/test.json ~/test.html
+
+
+OUTPUT: 
+
+{
+  "form": {
+    "title": "UserLoginViaOtpFormEmail",
+    "errors": {
+      "email": [
+        "Enter a valid email address."
+      ]
+    },
+    "non_field_errors": [],
+    "label_suffix": ":",
+    "is_bound": true,
+    "prefix": null,
+    "fields": {"email":{"title":"EmailField","required":true,"label":"Email address","initial":null,"help_text":"Please Enter valid Email Address","error_messages":{"required":"This field is required."},"widget":{"title":"TextInput","is_hidden":false,"needs_multipart_form":false,"is_localized":false,"is_required":true,"attrs":{"maxlength":"254"},"input_type":"text"},"max_length":254,"min_length":null}},
+    "fieldsets": [],
+    "ordered_fields": [
+      "email"
+    ],
+    "data": {
+      "email": "testtest.com"
+    }
+  },
+  "messages_redirect": [],
+  "redirect": false
+}
+
+#####
+POST email
+
+curl --verbose --location 'http://127.0.0.1:8000/login_register_password/api/user_login_via_otp_form_email' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+"email" :"test@test.com"
+}' | tee ~/test.json ~/test.html; firefox ~/test.json ~/test.html
+
+OUTPUT:
+
+{
+  "messages_redirect": [
+    "OTP send to email: test@test.com"
+  ],
+  "redirect": true,
+  "redirect_url": "/login_register_password/api/user_login_via_otp_form_otp",
+  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3RAdGVzdC5jb20iLCJub25jZSI6IlE2ak1jUVpDVzVkd2xyNm5uSW00akx5LXU1UlhWX01zeVFSbUQ1ejBHYk0iLCJjcmVhdGlvbl90aW1lIjoiMjAyMC0wNC0wM1QxMzoxMTo0NC4zMjU4MzIrMDA6MDAifQ.H57aaYVbJU1hBZ0OJmGZNkMVH4us31Y4KOupITYuuKE"
+}
+
+#####
+GET email form to get OTP
+
+curl --verbose --location 'http://127.0.0.1:8000/login_register_password/api/user_login_via_otp_form_email' \
+--header 'Content-Type: application/json' | tee ~/test.json ~/test.html; firefox ~/test.json ~/test.html
+
+
+
+######
+GET otp form
+curl --verbose --location 'http://127.0.0.1:8000/login_register_password/api/user_login_via_otp_form_otp' \
+--header 'Content-Type: application/json' | tee ~/test.json ~/test.html; firefox ~/test.json ~/test.html
+
+
+OUTPUT:
+
+{
+  "form": {
+    "title": "UserLoginViaOtpFormOTP",
+    "errors": {},
+    "non_field_errors": [],
+    "label_suffix": ":",
+    "is_bound": false,
+    "prefix": null,
+    "fields": {"otp_loginconfirm":{"title":"CharField","required":true,"label":"Otp","initial":null,"help_text":"Please Enter valid OTP sent to your Email","error_messages":{"required":"This field is required."},"widget":{"title":"TextInput","is_hidden":false,"needs_multipart_form":false,"is_localized":false,"is_required":true,"attrs":{"maxlength":"6"},"input_type":"text"},"max_length":6,"min_length":null}},
+    "fieldsets": [],
+    "ordered_fields": [
+      "otp_loginconfirm"
+    ],
+    "data": {
+      "otp_loginconfirm": null
+    }
+  },
+  "messages_redirect": [],
+  "redirect": false
+}
+
+
+#####
+POST OTP form  -- mistake in json
+curl --verbose --location 'http://127.0.0.1:8000/login_register_password/api/user_login_via_otp_form_otp' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+"jwt_token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3RAdGVzdC5jb20iLCJub25jZSI6ImVSZXpWd3NicUNWd3BralA2LU1tNk1wM1Y5VU1Pakt3QVdpNmhzTXcyTGMiLCJjcmVhdGlvbl90aW1lIjoiMjAyMC0wMy0yOVQwOTo1MzoxNy40NTM5NTArMDA6MDAifQ.oqKkM9hntOlr2xflSFwZPrCOmQ5g0DoBJo3XRC0cOYY",
+OTP:"727966"
+}' | tee ~/test.json ~/test.html; firefox ~/test.json ~/test.html
+
+OUTPUT:
+
+{
+  "message": "The request body is not valid.",
+  "explanation": "json.loads(request.body): Expecting property name enclosed in double quotes: line 3 column 1 (char 273)"
+}
+
+
+##### 
+POST OTP form -- OTP param not provided
+curl --verbose --location 'http://127.0.0.1:8000/login_register_password/api/user_login_via_otp_form_otp' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+"jwt_token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3RAdGVzdC5jb20iLCJub25jZSI6ImVSZXpWd3NicUNWd3BralA2LU1tNk1wM1Y5VU1Pakt3QVdpNmhzTXcyTGMiLCJjcmVhdGlvbl90aW1lIjoiMjAyMC0wMy0yOVQwOTo1MzoxNy40NTM5NTArMDA6MDAifQ.oqKkM9hntOlr2xflSFwZPrCOmQ5g0DoBJo3XRC0cOYY"
+}' | tee ~/test.json ~/test.html; firefox ~/test.json ~/test.html
+
+OUTPUT:
+
+{
+  "message": "The request body is not valid.",
+  "explanation": "OTP param is not found"
+}
+
+#####
+POST OTP form -- jwt_token not provided
+curl --verbose --location 'http://127.0.0.1:8000/login_register_password/api/user_login_via_otp_form_otp' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+"OTP":"727966"
+}' | tee ~/test.json ~/test.html; firefox ~/test.json ~/test.html
+
+OUTPUT:
+
+{
+  "message": "The request body is not valid.",
+  "explanation": "jwt_token not found"
+}
+
+#####
+GET OTP form  -- ask to resend OTP
+curl --verbose --location --request GET 'http://127.0.0.1:8000/login_register_password/api/user_login_via_otp_form_otp?resendotp=' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+"jwt_token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3RAdGVzdC5jb20iLCJub25jZSI6ImVSZXpWd3NicUNWd3BralA2LU1tNk1wM1Y5VU1Pakt3QVdpNmhzTXcyTGMiLCJjcmVhdGlvbl90aW1lIjoiMjAyMC0wMy0yOVQwOTo1MzoxNy40NTM5NTArMDA6MDAifQ.oqKkM9hntOlr2xflSFwZPrCOmQ5g0DoBJo3XRC0cOYY"
+}' | tee ~/test.json ~/test.html; firefox ~/test.json ~/test.html
+
+OUTPUT:
+
+{
+  "messages_redirect": [
+    "OTP send to email: test@test.com"
+  ],
+  "redirect": true,
+  "redirect_url": "/login_register_password/api/user_login_via_otp_form_otp",
+  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3RAdGVzdC5jb20iLCJub25jZSI6ImZlaVl2amtFUDVoanhJdE9lejVtSE1qNTgtZnZlYm5xVnFWVnVrcGpLeVUiLCJjcmVhdGlvbl90aW1lIjoiMjAyMC0wNC0wM1QxMzoyNDozNi40NDc1MzIrMDA6MDAifQ.s_t8wIsfYcAdopxS98mgS9kZC4g8Jfz_0wL5Fsr0maE"
+}
+
+
+#####
+POST OTP form if OTP is expired
+curl --verbose --location 'http://127.0.0.1:8000/login_register_password/api/user_login_via_otp_form_otp' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+"jwt_token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3RAdGVzdC5jb20iLCJub25jZSI6ImVSZXpWd3NicUNWd3BralA2LU1tNk1wM1Y5VU1Pakt3QVdpNmhzTXcyTGMiLCJjcmVhdGlvbl90aW1lIjoiMjAyMC0wMy0yOVQwOTo1MzoxNy40NTM5NTArMDA6MDAifQ.oqKkM9hntOlr2xflSFwZPrCOmQ5g0DoBJo3XRC0cOYY",
+"OTP":"727966"
+}' | tee ~/test.json ~/test.html; firefox ~/test.json ~/test.html
+
+OUTPUT:
+
+{
+  "form": {
+    "title": "UserLoginViaOtpFormOTP",
+    "errors": {
+      "__all__": [
+        "OTP expired, Click on resend OTP"
+      ]
+    },
+    "non_field_errors": [
+      "OTP expired, Click on resend OTP"
+    ],
+    "label_suffix": ":",
+    "is_bound": true,
+    "prefix": null,
+    "fields": {"otp_loginconfirm":{"title":"CharField","required":true,"label":"Otp","initial":null,"help_text":"Please Enter valid OTP sent to your Email","error_messages":{"required":"This field is required."},"widget":{"title":"TextInput","is_hidden":false,"needs_multipart_form":false,"is_localized":false,"is_required":true,"attrs":{"maxlength":"6"},"input_type":"text"},"max_length":6,"min_length":null}},
+    "fieldsets": [],
+    "ordered_fields": [
+      "otp_loginconfirm"
+    ],
+    "data": {
+      "otp_loginconfirm": "727966"
+    }
+  },
+  "messages_redirect": [],
+  "redirect": false
+}
+
+#####
+POST OTP form OTP invalid
+curl --verbose --location 'http://127.0.0.1:8000/login_register_password/api/user_login_via_otp_form_otp' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+"jwt_token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3RAdGVzdC5jb20iLCJub25jZSI6IjlpeFA2cWhWLTBZazBYZE52V2xyWGFSS09aeDZ3MGkxcHAtYm1LQ0hZbGciLCJjcmVhdGlvbl90aW1lIjoiMjAyMC0wNC0wM1QxMzoyODo0OS44MDEwMTUrMDA6MDAifQ.R0tJ0Ma6slwG-1U5CHaBTQajnpXkM7euB04SUimSvLo",
+"OTP":"848412"
+}' | tee ~/test.json ~/test.html; firefox ~/test.json ~/test.html
+
+OUTPUT:
+
+{
+  "form": {
+    "title": "UserLoginViaOtpFormOTP",
+    "errors": {
+      "__all__": [
+        "Form Error: Wrong OTP entered"
+      ]
+    },
+    "non_field_errors": [
+      "Form Error: Wrong OTP entered"
+    ],
+    "label_suffix": ":",
+    "is_bound": true,
+    "prefix": null,
+    "fields": {"otp_loginconfirm":{"title":"CharField","required":true,"label":"Otp","initial":null,"help_text":"Please Enter valid OTP sent to your Email","error_messages":{"required":"This field is required."},"widget":{"title":"TextInput","is_hidden":false,"needs_multipart_form":false,"is_localized":false,"is_required":true,"attrs":{"maxlength":"6"},"input_type":"text"},"max_length":6,"min_length":null}},
+    "fieldsets": [],
+    "ordered_fields": [
+      "otp_loginconfirm"
+    ],
+    "data": {
+      "otp_loginconfirm": "848412"
+    }
+  },
+  "messages_redirect": [],
+  "redirect": false
+}
+
+#####
+POST OTP form jwt_token invalid
+curl --verbose --location 'http://127.0.0.1:8000/login_register_password/api/user_login_via_otp_form_otp' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+"jwt_token":"AiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3RAdGVzdC5jb20iLCJub25jZSI6IjlpeFA2cWhWLTBZazBYZE52V2xyWGFSS09aeDZ3MGkxcHAtYm1LQ0hZbGciLCJjcmVhdGlvbl90aW1lIjoiMjAyMC0wNC0wM1QxMzoyODo0OS44MDEwMTUrMDA6MDAifQ.R0tJ0Ma6slwG-1U5CHaBTQajnpXkM7euB04SUimSvLo",
+"OTP":"848412"
+}' | tee ~/test.json ~/test.html; firefox ~/test.json ~/test.html
+
+OUTPUT:
+
+{
+  "message": "The request body is not valid.",
+  "explanation": "jwt_token not valid"
+}
+
+
+#####
+POST OTP form with valid jwt_token and OTP
+curl --verbose --location 'http://127.0.0.1:8000/login_register_password/api/user_login_via_otp_form_otp' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+"jwt_token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3RAdGVzdC5jb20iLCJub25jZSI6Ii1JVTFvTDJubWFRQ2l1OVNVbkJ3Uk1PSnpYSkpwZXREMS1Lbk82eU9jNG8iLCJjcmVhdGlvbl90aW1lIjoiMjAyMC0wNC0wM1QxMzozMjo1NC41OTc5MTcrMDA6MDAifQ.JIVYeuGNO6LaM55hcTSpdgG2nh_avVixi-n-pLtMkwY",
+"OTP":"363011"
+}' | tee ~/test.json ~/test.html; firefox ~/test.json ~/test.html
+
+
+OUTPUT:
+{
+  "messages_redirect": [
+    "Login Successful"
+  ],
+  "redirect": true,
+  "redirect_url": "/",
+  "user_token": {
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3RAdGVzdC5jb20iLCJjcmVhdGlvbl90aW1lIjoiMjAyMC0wNC0wM1QxMzozMzo1Ni44Nzc5OTMrMDA6MDAifQ.gb1PvrkfIgg4digSml32aofv1BjXTWouclQv_C3ztGw",
+    "unique_id": "edd1e80c-c875-4ffe-8587-02a3c54e226c"
+  }
+}
