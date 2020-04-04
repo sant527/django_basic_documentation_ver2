@@ -11,15 +11,20 @@ pydotplus = "*"
 django-querycount = "*"
 jupyter = "*"
 flower = "*"
+django-request-logging = "*"
 
 [packages]
 django = "*"
 psycopg2 = "*"
 django-environ = "*"
 celery = "*"
-redis = "*"
+redis = "==3.3.11"
 pyjwt = "*"
 django-webpack-loader = "*"
+django-rest-framework = "*"
+kombu = "*"
+django-otp = "*"
+pyotp = "*"
 
 [requires]
 python_version = "3.7"

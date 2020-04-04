@@ -83,11 +83,18 @@ environ.Env.read_env()
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
 
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY_BASE32_PYOTP = env('SECRET_KEY_BASE32_PYOTP')
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = env('ALLOWED_HOSTS')
+#ALLOWED_HOSTS = env('ALLOWED_HOSTS')
+ALLOWED_HOSTS = ['*']
 
+
+# TIMELIMIT USED FOR pyotp and also jwt
+TIMELIMIT_OTP = 1200
 
 # Application definition
 
@@ -110,7 +117,9 @@ if DEBUG:
 
 
 MIDDLEWARE = [
+    # added from django-request-logging
     'basic_django.middleware.request_exposer.RequestExposerMiddleware',
+    #'request_logging.middleware.LoggingMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -118,10 +127,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # added from django-request-logging
+    'request_logging.middleware.LoggingMiddleware',
 ]
 
 if DEBUG:
-    MIDDLEWARE += ['querycount_mod.middleware.QueryCountMiddleware']
+    MIDDLEWARE += [
+    'querycount_mod.middleware.QueryCountMiddleware'
+    ]
 
 if DEBUG:
     QUERYCOUNT = {
@@ -136,7 +149,6 @@ if DEBUG:
         'DISPLAY_DUPLICATES': 10000, ## Numer of queries whose sql to be displayed Note: Every query is considered as duplicate even its is executed once. It is considered as repeated as once. We are using 10,000 because we want to see the all the queries
         'RESPONSE_HEADER': 'X-DjangoQueryCount-Count'
     }
-
 
 ROOT_URLCONF = 'basic_django.urls'
 
@@ -252,7 +264,19 @@ MESSAGE_LEVEL = 10  # DEBUG
 import logging
 import traceback
 
+from datetime import datetime
+from pytz import timezone
+
 exposed_request=None
+
+
+def timetz(*args):
+    tz = timezone('Asia/Kolkata')
+    return datetime.now(tz).timetuple()
+
+ # UTC, Asia/Shanghai, Europe/Berlin
+
+logging.Formatter.converter = timetz
 
 # Verbose formatter to be used for the handler used in logging "custom_string"
 class VerFormatter(logging.Formatter):
@@ -286,8 +310,8 @@ class VerFormatter(logging.Formatter):
         code = pygments.highlight(
             code,
             Python3Lexer(),
-            #TerminalTrueColorFormatter(style='monokai')
-            TerminalTrueColorFormatter(style='monokai')
+            #TerminalTrueColorFormatter(style='monokai') #use for terminal
+            TerminalTrueColorFormatter() #use for jupyter notebook
         )
 
         #add new attributes to record which will be used later
@@ -295,11 +319,13 @@ class VerFormatter(logging.Formatter):
         if exposed_request is not None:
             record.absolute_path = exposed_request.build_absolute_uri()
             record.method = exposed_request.method
+        else:
+            record.absolute_path = "NONE_NO_REQUEST_ABS_PATH        "
+            record.method = "NONE_NO_REQUEST_METHOD"
         record.codelines = code
         record.topline = "--------------------------------------------------------------------------------------------------------------"
         record.botline = "--------------------------------------------------------------------------------------------------------------"
         return super(VerFormatter, self).format(record)
-
 
 # SQL formatter to be used for the handler used in logging "django.db.backends"
 class SQLFormatter(logging.Formatter):
@@ -448,10 +474,20 @@ LOGGING = {
         'django.server':{
             'handlers': ['django.server'],
             'propagate': False,
-        }
+        },
+        # added from django-request-logging
+        'django.request': {
+            'handlers': ['console'],
+            'level': logging.CRITICAL if DEBUG else 'INFO',  # change debug level as appropiate
+            'propagate': False,
+        },
 
     }
 }
+
+# added from django-LoggingMiddleware
+REQUEST_LOGGING_DATA_LOG_LEVEL=logging.CRITICAL
+REQUEST_LOGGING_HTTP_4XX_LOG_LEVEL=logging.CRITICAL
 
 
 #######################################################

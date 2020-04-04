@@ -25,26 +25,16 @@ def set_debug():
 
 # Create your views here.
 
-###############################
-## LOGGING
+###    ## LOGGING
 import logging
+import traceback
 logger_custom_string = logging.getLogger("custom_string")
-from basic_django import settings
-#logger_custom_string.debug(settings.pp_odir(locals()))
-#usage:
-##logger_custom_string.debug(settings.pp_odir(user_set))  # This will pretty print all the properties from dir(user_set)
-##logger_custom_string.debug(settings.pp_dict(user_set.__dict__))  # This will pretty print any dictionary
-#sql = str(user_set.query)
-#sql = user_set.query.__str__()
-##logger_custom_string.debug(settings.pp_sql_sql(sql)) # pretty print the sql obtained from the .query
-##logger_custom_string.debug(settings.pp_sql_query_pg(user_set)) # pretty print the sql using mogrify only possible with Psycopg
-##logger_custom_string.debug(settings.pp_sql_query_any(user_set)) # pretty print the sql using EXPLAIN. But runs extra sql
-#import traceback
-##logger_custom_string.debug(settings.pp_traceback(traceback.format_stack())) #test traceback
-logger_database = logging.getLogger("django.db.backends")
-#usage:
-#logger_database.filters[0].open()
-#logger_database.filters[0].close()
+from basic_django import settings as settings_basic_django
+#usage1: To show anything as string
+#logger_custom_string.debug(settings_basic_django.anything("Hare Krishna",traceback.format_stack(limit=5)))
+#usage2: to show dict or obj
+#logger_custom_string.debug(settings_basic_django.pp_odir(locals(),traceback.format_stack(limit=5)))
+#logger_custom_string.debug(settings_basic_django.pp_odir(obj,traceback.format_stack(limit=5)))  # This will pretty print all the properties from dir(obj)
 
 from basic_django.tasks import send_email_task
 
@@ -71,6 +61,7 @@ def user_login_via_otp_form_email(request):
 
     #request.session.modified = True
     if request.method == 'POST':
+        logger_custom_string.debug(settings_basic_django.pp_odir(request.POST,traceback.format_stack(limit=5)))
         form = UserLoginViaOtpFormEmail(request.POST)
         if form.is_valid():
             email = form.cleaned_data.get('email')
@@ -128,6 +119,7 @@ def user_login_via_otp_form_otp(request):
         # This iteration is necessary
         pass
     system_messages.used = True
+    return redirect('login_register_password_namespace:user_login_via_otp_form_email')
 
 
     # CHECKING whether the session variable exists or not
@@ -171,7 +163,7 @@ def user_login_via_otp_form_otp(request):
             timecheck = current_time - creation_time < timelimit
             timedelta = current_time - creation_time
             import traceback
-            logger_custom_string.debug(settings.pp_odir(locals(),traceback.format_stack(limit=5)))
+            logger_custom_string.debug(settings_basic_django.pp_odir(locals(),traceback.format_stack(limit=5)))
 
             if current_time - creation_time > timelimit:
                 form.add_error(None,"OTP expired, Click on resend OTP")
